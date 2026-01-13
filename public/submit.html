@@ -1,0 +1,49 @@
+﻿<!doctype html>
+<html lang="ja">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>勤怠提出</title>
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+</head>
+
+<body>
+  <h1>勤怠提出 /submit</h1>
+  <pre id="log">Loading...</pre>
+
+  <script>
+    const log = (msg) => {
+      document.getElementById("log").textContent += msg + "\n";
+    };
+
+    (async () => {
+      document.getElementById("log").textContent = "";
+      log("LIFF SDK loaded.");
+
+      const liffId = "2008874608-j5K5MOKs"; // ←ここをLIFF IDに置き換え
+
+      try {
+        await liff.init({ liffId });
+        log("liff.init OK ✅");
+        log("isInClient: " + liff.isInClient());
+
+        if (!liff.isLoggedIn()) {
+          log("Not logged in → liff.login()");
+          liff.login();
+          return;
+        }
+
+        const profile = await liff.getProfile();
+        log("name: " + profile.displayName);
+        log("userId: " + profile.userId);
+      } catch (e) {
+        log("Error: " + e.message);
+      }
+    })();
+  </script>
+
+  <a href="/">←戻る</a>
+</body>
+
+</html>
