@@ -1,1 +1,176 @@
-﻿<!doctype html><html lang="ja"><head><meta charset="utf-8" /><meta name="viewport" content="width=device-width,initial-scale=1" /><title>今月確認</title></head><body><h1>今月確認 /check</h1><a href="/">←戻る</a></body></html>
+﻿<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>入力内容の確認</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #f4f4f8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px 0;
+        }
+
+        .check-container {
+            background-color: #fff;
+            padding: 25px 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 420px;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 25px;
+            font-size: 1.5em;
+        }
+
+        .data-item {
+            margin-bottom: 15px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 15px;
+        }
+
+        .data-item:last-child {
+            border-bottom: none;
+        }
+
+        .data-label {
+            font-weight: bold;
+            color: #555;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .data-value {
+            color: #333;
+            font-size: 1.1em;
+            word-wrap: break-word;
+        }
+
+        .button-group {
+            margin-top: 30px;
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: opacity 0.3s;
+        }
+
+        .btn:hover {
+            opacity: 0.85;
+        }
+
+        .back-btn {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .confirm-btn {
+            background-color: #28a745;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="check-container">
+        <h1>入力内容の確認</h1>
+        <div id="displayData">
+            <!-- データはここに動的に挿入されます -->
+        </div>
+        <div class="button-group">
+            <button id="backButton" class="btn back-btn">戻って修正</button>
+            <button id="confirmButton" class="btn confirm-btn">この内容で確定</button>
+        </div>
+    </div>
+
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            const kintaiDataString = localStorage.getItem('kintaiData');
+            const displayDiv = document.getElementById('displayData');
+
+            if (!kintaiDataString) {
+                displayDiv.innerHTML = '<p>表示するデータがありません。入力ページから再度お試しください。</p>';
+                return;
+            }
+
+            const data = JSON.parse(kintaiDataString);
+
+            // 表示用にデータを整形
+            const workTime = `${data.startTime || '未設定'} 〜 ${data.endTime || '未設定'}`;
+            const breakTime = (data.breakStartTime && data.breakEndTime)
+                ? `${data.breakStartTime} 〜 ${data.breakEndTime}`
+                : 'なし';
+            const memo = data.memo ? data.memo.replace(/\n/g, '  
+') : 'なし';
+
+            // HTMLを生成して表示
+            displayDiv.innerHTML = `
+                <div class="data-item">
+                    <span class="data-label">氏名</span>
+                    <span class="data-value">${data.name || '未設定'}</span>
+                </div>
+                <div class="data-item">
+                    <span class="data-label">勤務地</span>
+                    <span class="data-value">${data.location || '未設定'}</span>
+                </div>
+                <div class="data-item">
+                    <span class="data-label">勤務日</span>
+                    <span class="data-value">${data.workDate || '未設定'}</span>
+                </div>
+                <div class="data-item">
+                    <span class="data-label">勤務時間</span>
+                    <span class="data-value">${workTime}</span>
+                </div>
+                <div class="data-item">
+                    <span class="data-label">休憩時間</span>
+                    <span class="data-value">${breakTime}</span>
+                </div>
+                <div class="data-item">
+                    <span class="data-label">メモ</span>
+                    <span class="data-value">${memo}</span>
+                </div>
+            `;
+        });
+
+        // 「戻って修正」ボタンの処理
+        document.getElementById('backButton').addEventListener('click', () => {
+            // localStorageのデータは消さずに、単に前のページに戻る
+            window.location.href = '/submit';
+        });
+
+        // 「この内容で確定」ボタンの処理
+        document.getElementById('confirmButton').addEventListener('click', () => {
+            // ここで将来的にサーバーへのデータ送信処理を実装する
+            alert('送信準備OK（保存先未接続）');
+
+            // データを送信（または確定）したら、localStorageからデータを削除する
+            // localStorage.removeItem('kintaiData');
+
+            // トップページなどにリダイレクトする
+            // window.location.href = 'index.html';
+        });
+    </script>
+
+</body>
+
+</html>

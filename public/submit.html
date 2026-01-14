@@ -1,49 +1,241 @@
-﻿<!doctype html>
+﻿<!DOCTYPE html>
 <html lang="ja">
 
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>勤怠提出</title>
-  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>直島勤怠入力フォーム</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: #f4f4f8;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px 0;
+    }
+
+    .form-container {
+      background-color: #fff;
+      padding: 25px 30px;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 420px;
+      box-sizing: border-box;
+    }
+
+    h1 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 25px;
+      font-size: 1.5em;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      color: #555;
+      font-weight: bold;
+    }
+
+    input[type="text"],
+    input[type="date"],
+    input[type="time"],
+    select,
+    textarea {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+      font-size: 16px;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .radio-group label {
+      display: inline-block;
+      margin-right: 15px;
+      font-weight: normal;
+    }
+
+    .submit-btn {
+      width: 100%;
+      padding: 15px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .submit-btn:hover {
+      background-color: #0056b3;
+    }
+
+    .error-message {
+      color: #d93025;
+      margin-top: 5px;
+      font-size: 14px;
+      display: none;
+      /* Initially hidden */
+    }
+  </style>
 </head>
 
 <body>
-  <h1>勤怠提出 /submit</h1>
-  <pre id="log">Loading...</pre>
+
+  <div class="form-container">
+    <h1>直島勤怠入力フォーム</h1>
+    <form id="kintaiForm">
+      <div class="form-group">
+        <label for="name">氏名 <span style="color:red;">*</span></label>
+        <input type="text" id="name" name="name" required>
+      </div>
+
+      <div class="form-group">
+        <label>勤務地 <span style="color:red;">*</span></label>
+        <div class="radio-group">
+          <label><input type="radio" name="location" value="SANAMANE" required> SANAMANE</label>
+          <label><input type="radio" name="location" value="新美術館"> 新美術館</label>
+          <label><input type="radio" name="location" value="水"> 水</label>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="workDate">勤務日 <span style="color:red;">*</span></label>
+        <input type="date" id="workDate" name="workDate" required>
+      </div>
+
+      <div class="form-group">
+        <label for="startTime">勤務開始時刻 <span style="color:red;">*</span></label>
+        <input type="time" id="startTime" name="startTime" step="900" required>
+      </div>
+
+      <div class="form-group">
+        <label for="endTime">勤務終了時刻 <span style="color:red;">*</span></label>
+        <input type="time" id="endTime" name="endTime" step="900" required>
+        <p id="endTimeError" class="error-message"></p>
+      </div>
+
+      <div class="form-group">
+        <label for="breakStartTime">休憩開始時刻</label>
+        <input type="time" id="breakStartTime" name="breakStartTime" step="900">
+      </div>
+
+      <div class="form-group">
+        <label for="breakEndTime">休憩終了時刻</label>
+        <input type="time" id="breakEndTime" name="breakEndTime" step="900">
+        <p id="breakTimeError" class="error-message"></p>
+      </div>
+
+      <div class="form-group">
+        <label for="memo">メモ</label>
+        <textarea id="memo" name="memo"></textarea>
+      </div>
+
+      <button type="submit" class="submit-btn">入力内容を確認する</button>
+    </form>
+  </div>
 
   <script>
-    const log = (msg) => {
-      document.getElementById("log").textContent += msg + "\n";
-    };
+    document.getElementById('kintaiForm').addEventListener('submit', function (event) {
+      event.preventDefault(); // フォームのデフォルト送信をキャンセル
 
-    (async () => {
-      document.getElementById("log").textContent = "";
-      log("LIFF SDK loaded.");
+      // エラーメッセージをリセット
+      document.getElementById('endTimeError').style.display = 'none';
+      document.getElementById('breakTimeError').style.display = 'none';
 
-      const liffId = "2008874608-j5K5MOKs"; // ←ここをLIFF IDに置き換え
+      // フォームデータを取得
+      const name = document.getElementById('name').value;
+      const location = document.querySelector('input[name="location"]:checked')?.value;
+      const workDate = document.getElementById('workDate').value;
+      const startTime = document.getElementById('startTime').value;
+      const endTime = document.getElementById('endTime').value;
+      const breakStartTime = document.getElementById('breakStartTime').value;
+      const breakEndTime = document.getElementById('breakEndTime').value;
+      const memo = document.getElementById('memo').value;
 
-      try {
-        await liff.init({ liffId });
-        log("liff.init OK ✅");
-        log("isInClient: " + liff.isInClient());
+      // --- バリデーション ---
+      let isValid = true;
 
-        if (!liff.isLoggedIn()) {
-          log("Not logged in → liff.login()");
-          liff.login();
-          return;
-        }
-
-        const profile = await liff.getProfile();
-        log("name: " + profile.displayName);
-        log("userId: " + profile.userId);
-      } catch (e) {
-        log("Error: " + e.message);
+      // 1. 勤務終了時刻 < 勤務開始時刻
+      if (startTime && endTime && endTime < startTime) {
+        const errorP = document.getElementById('endTimeError');
+        errorP.textContent = '勤務終了時刻は、勤務開始時刻より後に設定してください。';
+        errorP.style.display = 'block';
+        isValid = false;
       }
-    })();
+
+      // 2. 休憩終了時刻 < 休憩開始時刻
+      if (breakStartTime && breakEndTime && breakEndTime < breakStartTime) {
+        const errorP = document.getElementById('breakTimeError');
+        errorP.textContent = '休憩終了時刻は、休憩開始時刻より後に設定してください。';
+        errorP.style.display = 'block';
+        isValid = false;
+      }
+
+      // 3. 休憩時間が勤務時間の外にある
+      if (breakStartTime && (breakStartTime < startTime || breakStartTime > endTime)) {
+        const errorP = document.getElementById('breakTimeError');
+        errorP.textContent = '休憩開始時刻が勤務時間外に設定されています。';
+        errorP.style.display = 'block';
+        isValid = false;
+      }
+      if (breakEndTime && (breakEndTime < startTime || breakEndTime > endTime)) {
+        const errorP = document.getElementById('breakTimeError');
+        errorP.textContent = '休憩終了時刻が勤務時間外に設定されています。';
+        errorP.style.display = 'block';
+        isValid = false;
+      }
+
+      // 4. 休憩開始・終了の片方のみ入力されている
+      if ((breakStartTime && !breakEndTime) || (!breakStartTime && breakEndTime)) {
+        const errorP = document.getElementById('breakTimeError');
+        errorP.textContent = '休憩時間を入力する場合は、開始と終了の両方を設定してください。';
+        errorP.style.display = 'block';
+        isValid = false;
+      }
+
+
+      if (!isValid) {
+        alert('入力内容にエラーがあります。メッセージを確認してください。');
+        return; // 送信を中止
+      }
+
+      // --- データ保存と画面遷移 ---
+      const formData = {
+        name,
+        location,
+        workDate,
+        startTime,
+        endTime,
+        breakStartTime,
+        breakEndTime,
+        memo
+      };
+
+      // localStorageにJSON文字列として保存
+      localStorage.setItem('kintaiData', JSON.stringify(formData));
+
+      // 確認ページへ遷移
+      window.location.href = '/check';
+    });
   </script>
 
-  <a href="/">←戻る</a>
 </body>
 
 </html>
