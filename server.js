@@ -15,3 +15,29 @@ app.get("/", (req, res) => {
 app.listen(PORT, () => {
   console.log(`Server running: http://localhost:${PORT}`);
 });
+const path = require("path");
+
+// もしまだなら：public を静的配信
+app.use(express.static(path.join(__dirname, "public")));
+
+// 追加：拡張子なしURL → html に対応
+app.get("/submit", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "submit.html"));
+});
+
+app.get("/edit", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "edit.html"));
+});
+
+app.get("/check", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "check.html"));
+});
+
+// もし使うなら（あなたのファイルに合わせて）
+app.get("/history", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "history.html"));
+});
+
+app.get("/summary", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "summary.html"));
+});
