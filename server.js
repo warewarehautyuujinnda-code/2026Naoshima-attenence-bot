@@ -2,42 +2,36 @@ const express = require("express");
 const path = require("path");
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
-// publicフォルダをそのまま配信
+// public を静的配信
 app.use(express.static(path.join(__dirname, "public")));
 
-// ルートにアクセスされたら index.html を返す
+// 各ページ
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
-app.listen(PORT, () => {
-  console.log(`Server running: http://localhost:${PORT}`);
-});
-const path = require("path");
-
-// もしまだなら：public を静的配信
-app.use(express.static(path.join(__dirname, "public")));
-
-// 追加：拡張子なしURL → html に対応
 app.get("/submit", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "submit.html"));
-});
-
-app.get("/edit", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "edit.html"));
 });
 
 app.get("/check", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "check.html"));
 });
 
-// もし使うなら（あなたのファイルに合わせて）
+app.get("/edit", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "edit.html"));
+});
+
 app.get("/history", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "history.html"));
 });
 
 app.get("/summary", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "summary.html"));
+});
+
+app.listen(PORT, () => {
+  console.log(`Server running: http://localhost:${PORT}`);
 });
