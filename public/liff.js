@@ -1,7 +1,7 @@
 // public/liff.js
 
 // ★後でLINE Developersで作った LIFF ID に置き換える
-const LIFF_ID = "YOUR_LIFF_ID_HERE";
+const LIFF_ID = "2008874608-j5K5MOKs";
 
 function showLoading() {
   document.body.innerHTML = `
